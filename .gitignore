@@ -1,0 +1,3 @@
+.vagrant/
+*.img
+packer-builder-arm-image

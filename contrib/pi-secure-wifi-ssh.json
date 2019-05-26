@@ -1,0 +1,88 @@
+{
+  "variables": {
+    "wifi_name": "",
+    "wifi_password": "",
+    "home": "{{env `HOME`}}",
+    "ssh_key_src": "/vagrant/id_rsa.pub",
+    "pi_hostname": "graz-baz",
+    "pi_password": "",
+    "ip_address_octet": "199",
+    "image_home_dir": "/home/graham"
+  },
+  "builders": [{
+    "type": "arm-image",
+    "iso_url" : "https://downloads.raspberrypi.org/raspbian_lite_latest",
+    "iso_checksum_type":"sha256",
+    "iso_checksum":"47ef1b2501d0e5002675a50b6868074e693f78829822eef64f3878487953234d",
+    "last_partition_extra_size" : 1073741824
+  }],  
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": ["touch /boot/ssh"]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "echo {{user `pi_hostname`}} | tee /etc/hostname",
+        "sed '/127.0.1.1/d' -i /etc/hosts",
+        "echo 127.0.1.1 {{user `pi_hostname`}} | tee -a /etc/hosts"
+      ]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "adduser graham --disabled-password --gecos \"\"",
+        "echo graham:{{user `pi_password`}} | chpasswd",
+        "adduser graham sudo"
+        ]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "mkdir -p {{user `image_home_dir`}}/.ssh"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "{{user `ssh_key_src`}}",
+      "destination": "{{user `image_home_dir`}}/.ssh/authorized_keys"
+    },
+    {
+      "type": "shell",
+      "environment_vars": [
+        "OCTET={{user `ip_address_octet`}}"
+      ],
+      "execute_command": "{{.Vars}} bash -c {{.Path}}",
+      "scripts": [
+        "/vagrant/scripts/packer_install_git.sh",
+        "/vagrant/scripts/packer_install_golang.sh",
+        "/vagrant/scripts/packer_configure_static_ip.sh"
+      ]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "wpa_passphrase \"{{user `wifi_name`}}\" \"{{user `wifi_password`}}\" | sed -e 's/#.*$//' -e '/^$/d' >> /etc/wpa_supplicant/wpa_supplicant.conf",
+        "chown -R graham:graham {{user `image_home_dir`}}",
+        "chmod go-w {{user `image_home_dir`}}/",
+        "chmod 700 {{user `image_home_dir`}}/.ssh",
+        "chmod 600 {{user `image_home_dir`}}/.ssh/authorized_keys",
+        "deluser -remove-home pi"
+        ]
+    },
+
+    {
+      "type": "shell",
+      "inline": [
+        "sed '/ChallengeResponseAuthentication/d' -i /etc/ssh/ssh_config",
+        "sed '/PasswordAuthentication/d' -i /etc/ssh/ssh_config",
+        "sed '/UsePAM/d' -i /etc/ssh/ssh_config",
+        "echo  >> /etc/ssh/ssh_config",
+        "echo 'ChallengeResponseAuthentication no' >> /etc/ssh/ssh_config",
+        "echo 'PasswordAuthentication no' >> /etc/ssh/ssh_config"
+      ]
+    }
+  ]
+}
+
