@@ -94,7 +94,28 @@ install_golang() {
     sudo tar -C /usr/local -xzf go${golang_version}.linux-armv6l.tar.gz
     
     sudo rm -rf /tmp/go_src
-    echo "export PATH=$PATH:/usr/local/go/bin" >> /etc/profile
+
+    sudo cat >> /etc/profile << 'EOF'
+export GOPATH=$HOME/go
+export PATH=/usr/local/go/bin:$PATH:$GOPATH/bin
+EOF
+     
+
+}
+
+install_clusterhat_software () {
+
+    echo "dtparam=i2c_arm=on" >> /boot/config.txt
+    echo "i2c-dev" >> /etc/modules
+
+    sudo mkdir -p /usr/share/clusterhat/python/
+    sudo wget -O /usr/share/clusterhat/python/xra1200.py \
+ https://raw.githubusercontent.com/burtyb/clusterhat-image/master/files/usr/share/clusterhat/python/xra1200.py
+    sudo wget -O /sbin/clusterhat \
+ https://raw.githubusercontent.com/burtyb/clusterhat-image/master/files/sbin/clusterhat
+    sudo apt-get install -y python-smbus
+
+    sudo chmod +x /sbin/clusterhat
 
 }
 
@@ -120,6 +141,7 @@ sudo systemctl disable nginx
 
 install_hashicorp_binaries
 install_golang
+install_clusterhat_software
 
 # Reboot with the new kernel
 shutdown -r now

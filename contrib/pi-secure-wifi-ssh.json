@@ -30,9 +30,9 @@
         "echo ip_address_octet: {{user `ip_address_octet`}}",
         "echo wifi_name: {{user `wifi_name`}}",
         "echo wifi_password: {{user `wifi_password`}}",
-        "echo {{user `pi_hostname`}}{{user `ip_address_octet`}} | tee /etc/hostname",
+        "echo '{{user `pi_hostname`}}{{user `ip_address_octet`}}' | tee /etc/hostname",
         "sed '/127.0.1.1/d' -i /etc/hosts",
-        "echo 127.0.1.1 {{user `pi_hostname`}}{{user `ip_address_octet`}} | tee -a /etc/hosts"
+        "echo 127.0.1.1 '{{user `pi_hostname`}}{{user `ip_address_octet`}}' | tee -a /etc/hosts"
       ]
     },
     {
@@ -70,7 +70,11 @@
     {
       "type": "shell",
       "inline": [
-        "wpa_passphrase \"{{user `wifi_name`}}\" \"{{user `wifi_password`}}\" | sed -e 's/#.*$//' -e '/^$/d' >> /etc/wpa_supplicant/wpa_supplicant.conf",
+        "echo \"country=GB\" > /etc/wpa_supplicant/wpa_supplicant.conf",
+        "echo \"ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\" >> /etc/wpa_supplicant/wpa_supplicant.conf",
+        "echo \"update_config=1\" >> /etc/wpa_supplicant/wpa_supplicant.conf",
+        "echo \"\" >> /etc/wpa_supplicant/wpa_supplicant.conf",
+        "wpa_passphrase \"{{user `wifi_name`}}\" \"{{user `wifi_password`}}\" | sed -e 's/#.*$//' >> /etc/wpa_supplicant/wpa_supplicant.conf",
         "chown -R graham:graham {{user `image_home_dir`}}",
         "chmod go-w {{user `image_home_dir`}}/",
         "chmod 700 {{user `image_home_dir`}}/.ssh",
