@@ -1,19 +1,20 @@
 {
   "variables": {
-    "wifi_name": "",
-    "wifi_password": "",
+    "wifi_name": "{{env `SSID`}}",
+    "wifi_password": "{{env `WIFI_PASSWORD`}}",
     "home": "{{env `HOME`}}",
     "ssh_key_src": "/vagrant/id_rsa.pub",
-    "pi_hostname": "graz-baz",
-    "pi_password": "",
-    "ip_address_octet": "199",
+    "pi_hostname": "{{env `PI_NAME`}}",
+    "pi_password": "{{env `PI_PASSWORD`}}",
+    "ip_address_octet": "{{env `OCTET`}}",
     "image_home_dir": "/home/graham"
   },
   "builders": [{
     "type": "arm-image",
+    "name": "{{ user `pi_hostname` }}{{ user `ip_address_octet` }}",
     "iso_url" : "https://downloads.raspberrypi.org/raspbian_lite_latest",
     "iso_checksum_type":"sha256",
-    "iso_checksum":"47ef1b2501d0e5002675a50b6868074e693f78829822eef64f3878487953234d",
+    "iso_checksum":"03ec326d45c6eb6cef848cf9a1d6c7315a9410b49a276a6b28e67a40b11fdfcf",
     "last_partition_extra_size" : 1073741824
   }],  
   "provisioners": [
@@ -24,14 +25,20 @@
     {
       "type": "shell",
       "inline": [
-        "echo {{user `pi_hostname`}} | tee /etc/hostname",
+        "echo pi_hostname: {{user `pi_hostname`}}{{user `ip_address_octet`}}",
+        "echo pi_password: {{user `pi_password`}}",
+        "echo ip_address_octet: {{user `ip_address_octet`}}",
+        "echo wifi_name: {{user `wifi_name`}}",
+        "echo wifi_password: {{user `wifi_password`}}",
+        "echo {{user `pi_hostname`}}{{user `ip_address_octet`}} | tee /etc/hostname",
         "sed '/127.0.1.1/d' -i /etc/hosts",
-        "echo 127.0.1.1 {{user `pi_hostname`}} | tee -a /etc/hosts"
+        "echo 127.0.1.1 {{user `pi_hostname`}}{{user `ip_address_octet`}} | tee -a /etc/hosts"
       ]
     },
     {
       "type": "shell",
       "inline": [
+        "echo graham:{{user `pi_password`}}",
         "adduser graham --disabled-password --gecos \"\"",
         "echo graham:{{user `pi_password`}} | chpasswd",
         "adduser graham sudo"
@@ -56,8 +63,8 @@
       "execute_command": "{{.Vars}} bash -c {{.Path}}",
       "scripts": [
         "/vagrant/scripts/packer_install_git.sh",
-        "/vagrant/scripts/packer_install_golang.sh",
-        "/vagrant/scripts/packer_configure_static_ip.sh"
+        "/vagrant/scripts/packer_configure_static_ip.sh",
+        "/vagrant/scripts/packer_install_base_packages.sh"
       ]
     },
     {
