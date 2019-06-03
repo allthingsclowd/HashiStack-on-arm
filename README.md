@@ -278,3 +278,9 @@ Log out of VM then...
 sudo dd bs=1m if=packer_rpi.img of=/dev/rdisk2 conv=sync
 
 ```
+
+or for bulk images ....
+
+``` bash
+for i in {1..4}; do sudo packer build -var home=${HOME} -var pi_password=${PI_PASSWORD} -var pi_hostname=${PI_NAME} -var wifi_name=${SSID} -var wifi_password=${WIFI_PASSWORD} -var ip_address_octet=20${i} /vagrant/contrib/pi-secure-wifi-ssh.json; sudo mv output-hashicluster120${i}/image /vagrant/rpi20${i}.img ;done
+```
