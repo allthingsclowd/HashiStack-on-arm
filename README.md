@@ -179,7 +179,7 @@ See everything included in here: [contrib/pi-secure-wifi-ssh.json](contrib/pi-se
 ```
 sudo packer build  -var wifi_name=SSID -var wifi_password=PASSWORD contrib/pi-secure-wifi-ssh.json
 # or  if running from vagrant ssh:
-sudo packer build  -var wifi_name=SSID -var wifi_password=PASSWORD /vagrant/contrib/pi-secure-wifi-ssh.json
+sudo packer build -var wifi_name=SSID -var wifi_password=password -var pi_password=password -var pi_hostname=graz-server-1 -var ip_address_octet=PASSWORD /vagrant/contrib/pi-secure-wifi-ssh.json
 ```
 
 ## GJL Example
@@ -260,10 +260,21 @@ sudo packer build  -var wifi_name=SSID -var wifi_password=PASSWORD /vagrant/cont
 ```
 
 ``` bash
-sudo packer build -var pi_password=my_password -var wifi_name=my_ssid -var wifi_password=my_wifi_password /vagrant/contrib/pi-secure-wifi-ssh.json
+
+export SSID=<my ssid>
+export PI_PASSWORD=<pi password>
+export PI_NAME=<pi name>
+export WIFI_PASSWORD=<wifi password>
+export PI_OCTET=<octet>
+
+sudo packer build -var home=${HOME} -var pi_password=${PI_PASSWORD} -var pi_hostname=${PI_NAME} -var wifi_name=${SSID} -var wifi_password=${WIFI_PASSWORD} -var ip_address_octet=${PI_OCTET} /vagrant/contrib/pi-secure-wifi-ssh.json
 
 sudo mv output-arm-image/image /vagrant/packer_rpi.img
+```
 
+Log out of VM then...
+
+``` bash
 sudo dd bs=1m if=packer_rpi.img of=/dev/rdisk2 conv=sync
 
 ```
