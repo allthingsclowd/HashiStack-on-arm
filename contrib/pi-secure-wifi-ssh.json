@@ -3,7 +3,8 @@
     "wifi_name": "{{env `SSID`}}",
     "wifi_password": "{{env `WIFI_PASSWORD`}}",
     "home": "{{env `HOME`}}",
-    "ssh_key_src": "/vagrant/id_rsa.pub",
+    "ssh_key_src_pub": "/vagrant/.privatekeys/id_rsa.pub",
+    "ssh_key_src": "/vagrant/.privatekeys/id_rsa",
     "pi_hostname": "{{env `PI_NAME`}}",
     "pi_password": "{{env `PI_PASSWORD`}}",
     "ip_address_octet": "{{env `OCTET`}}",
@@ -52,20 +53,18 @@
     },
     {
       "type": "file",
-      "source": "{{user `ssh_key_src`}}",
+      "source": "{{user `ssh_key_src_pub`}}",
       "destination": "{{user `image_home_dir`}}/.ssh/authorized_keys"
     },
     {
-      "type": "shell",
-      "environment_vars": [
-        "OCTET={{user `ip_address_octet`}}"
-      ],
-      "execute_command": "{{.Vars}} bash -c {{.Path}}",
-      "scripts": [
-        "/vagrant/scripts/packer_install_git.sh",
-        "/vagrant/scripts/packer_configure_static_ip.sh",
-        "/vagrant/scripts/packer_install_base_packages.sh"
-      ]
+      "type": "file",
+      "source": "{{user `ssh_key_src`}}",
+      "destination": "{{user `image_home_dir`}}/.ssh/id_rsa"
+    },
+    {
+      "type": "file",
+      "source": "{{user `ssh_key_src_pub`}}",
+      "destination": "{{user `image_home_dir`}}/.ssh/id_rsa.pub"
     },
     {
       "type": "shell",
@@ -78,11 +77,23 @@
         "chown -R graham:graham {{user `image_home_dir`}}",
         "chmod go-w {{user `image_home_dir`}}/",
         "chmod 700 {{user `image_home_dir`}}/.ssh",
+        "chmod 644 {{user `image_home_dir`}}/.ssh/id_rsa.pub",
+        "chmod 600 {{user `image_home_dir`}}/.ssh/id_rsa",
         "chmod 600 {{user `image_home_dir`}}/.ssh/authorized_keys",
         "deluser -remove-home pi"
         ]
     },
-
+    {
+      "type": "shell",
+      "environment_vars": [
+        "OCTET={{user `ip_address_octet`}}"
+      ],
+      "execute_command": "{{.Vars}} bash -c {{.Path}}",
+      "scripts": [
+        "/vagrant/scripts/packer_configure_static_ip.sh",
+        "/vagrant/scripts/packer_install_base_packages.sh"
+      ]
+    },
     {
       "type": "shell",
       "inline": [

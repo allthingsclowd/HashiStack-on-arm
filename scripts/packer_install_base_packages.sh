@@ -103,6 +103,13 @@ EOF
 
 }
 
+install_hashistack_repo () {
+    cd /home/graham
+    sudo -u graham git clone git@github.com:allthingsclowd/rpi_web_page_counter.git
+    cd rpi_web_page_counter
+    git checkout ConsulDeployment
+}
+
 install_clusterhat_software () {
 
     echo "dtparam=i2c_arm=on" >> /boot/config.txt
@@ -142,6 +149,7 @@ sudo systemctl disable nginx
 install_hashicorp_binaries
 install_golang
 install_clusterhat_software
+install_hashistack_repo
 
 # Reboot with the new kernel
 shutdown -r now
