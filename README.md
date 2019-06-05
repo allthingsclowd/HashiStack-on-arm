@@ -272,15 +272,23 @@ sudo packer build -var home=${HOME} -var pi_password=${PI_PASSWORD} -var pi_host
 sudo mv output-arm-image/image /vagrant/packer_rpi.img
 ```
 
-Log out of VM then...
-
-``` bash
-sudo dd bs=1m if=packer_rpi.img of=/dev/rdisk2 conv=sync
-
-```
-
 or for bulk images ....
 
 ``` bash
 for i in {1..4}; do sudo packer build -var home=${HOME} -var pi_password=${PI_PASSWORD} -var pi_hostname=${PI_NAME} -var wifi_name=${SSID} -var wifi_password=${WIFI_PASSWORD} -var ip_address_octet=20${i} /vagrant/contrib/pi-secure-wifi-ssh.json; sudo mv output-hashicluster120${i}/image /vagrant/rpi20${i}.img ;done
+```
+
+Log out of VM then...
+
+On MacOS I frequently have to issue the following command before I can access the sd card
+
+``` bash
+sudo diskutil umountDisk /dev/disk2
+```
+
+And then I can
+
+``` bash
+sudo dd bs=1m if=packer_rpi.img of=/dev/rdisk2 conv=sync
+
 ```
