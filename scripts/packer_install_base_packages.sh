@@ -105,6 +105,9 @@ EOF
 
 install_hashistack_repo () {
     cd /home/graham
+    sudo -u graham touch /home/graham/.ssh/known_hosts
+    sudo -u graham ssh-keyscan github.com >> /home/graham/.ssh/known_hosts
+    sudo -u graham chmod 644 /home/graham/.ssh/known_hosts
     sudo -u graham git clone git@github.com:allthingsclowd/rpi_web_page_counter.git
     cd rpi_web_page_counter
     git checkout ConsulDeployment

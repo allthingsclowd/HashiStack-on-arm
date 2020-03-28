@@ -69,11 +69,11 @@
     {
       "type": "shell",
       "inline": [
-        "echo \"country=GB\" > /etc/wpa_supplicant/wpa_supplicant.conf",
-        "echo \"ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\" >> /etc/wpa_supplicant/wpa_supplicant.conf",
-        "echo \"update_config=1\" >> /etc/wpa_supplicant/wpa_supplicant.conf",
-        "echo \"\" >> /etc/wpa_supplicant/wpa_supplicant.conf",
-        "wpa_passphrase \"{{user `wifi_name`}}\" \"{{user `wifi_password`}}\" | sed -e 's/#.*$//' >> /etc/wpa_supplicant/wpa_supplicant.conf",
+        "echo \"country=GB\" > /etc/wpa_supplicant/wpa_supplicant.conf.bup",
+        "echo \"ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\" >> /etc/wpa_supplicant/wpa_supplicant.conf.bup",
+        "echo \"update_config=1\" >> /etc/wpa_supplicant/wpa_supplicant.conf.bup",
+        "echo \"\" >> /etc/wpa_supplicant/wpa_supplicant.conf.bup",
+        "wpa_passphrase \"{{user `wifi_name`}}\" \"{{user `wifi_password`}}\" | sed -e 's/#.*$//' >> /etc/wpa_supplicant/wpa_supplicant.conf.bup",
         "chown -R graham:graham {{user `image_home_dir`}}",
         "chmod go-w {{user `image_home_dir`}}/",
         "chmod 700 {{user `image_home_dir`}}/.ssh",
@@ -97,12 +97,12 @@
     {
       "type": "shell",
       "inline": [
-        "sed '/ChallengeResponseAuthentication/d' -i /etc/ssh/ssh_config",
-        "sed '/PasswordAuthentication/d' -i /etc/ssh/ssh_config",
-        "sed '/UsePAM/d' -i /etc/ssh/ssh_config",
-        "echo  >> /etc/ssh/ssh_config",
-        "echo 'ChallengeResponseAuthentication no' >> /etc/ssh/ssh_config",
-        "echo 'PasswordAuthentication no' >> /etc/ssh/ssh_config"
+        "sed '/ChallengeResponseAuthentication/d' -i /etc/ssh/sshd_config",
+        "sed '/PasswordAuthentication/d' -i /etc/ssh/sshd_config",
+        "sed '/UsePAM/d' -i /etc/ssh/sshd_config",
+        "echo  >> /etc/ssh/sshd_config",
+        "echo 'ChallengeResponseAuthentication no' >> /etc/ssh/sshd_config",
+        "echo 'PasswordAuthentication no' >> /etc/ssh/sshd_config"
       ]
     }
   ]
